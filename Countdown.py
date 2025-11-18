@@ -1,34 +1,52 @@
-import time
+import sys
 from datetime import date
-from inky.auto import auto  #imports that auto class from the inky.auto library
-from PIL import Image, ImageFont, ImageDraw  #imports three classes needed from the Python Image Library (PIL)
-from font_fredoka_one import FredokaOne #import the desired font
+from inky.auto import auto
+from PIL import Image, ImageFont, ImageDraw
+from font_fredoka_one import FredokaOne
 
-target_date = date(2022, 7, 9)
+TARGET_DATE = date(2025, 11, 18)
+TODAY = date.today()
 
-today = date.today()
+def update_display():
 
-days_left = abs(target_date - today) #returns the absolute value
+    try:
+        inky_display = auto()
+    except RuntimeError:
+        print("Inky pHAT not detected.")
+        sys.exit(1)
 
-inky_display = auto()  #creates an instance of the class called inky_display
-inky_display.set_border(inky_display.WHITE) #sets the border color (the thin line at the edge of the display) color to black
-img = Image.new("P", (inky_display.WIDTH, inky_display.HEIGHT))  #creates a new image that is the width and height of the Inky pHAT display
-draw = ImageDraw.Draw(img)  #creates a drawing canvas to which text and graphics can be drawn
+    inky_display.set_border(inky_display.WHITE)
 
-if target_date > today:
-    message = str(days_left.days) #converts the number of days (without hours) into a string
-    font = ImageFont.truetype(FredokaOne,100) #set the font size
-else:
-    message = "EASY" #this is what will be displayed when the countdown is complete
-    font = ImageFont.truetype(FredokaOne,75) #set the font size
+    # Create canvas
+    img = Image.new("P", (inky_display.WIDTH, inky_display.HEIGHT))
+    draw = ImageDraw.Draw(img)
 
-print (message,"DAYS")
+    days_left = (TARGET_DATE - TODAY).days
+    
+    if days_left > 0:
+        message = str(days_left)
+        font_size = 100
+    else:
+        message = "PARTY"
+        font_size = 55
 
-#use the width and height constants we created above to center our message:
-w, h = font.getsize(message)
-x = (inky_display.WIDTH / 2) - (w / 2)
-y = (inky_display.HEIGHT / 2) - ((h / 2) + 10)
+    print(f"{message} DAYS")
 
-draw.text((x, y), message, inky_display.RED, font)  #sets the color of the text
-inky_display.set_image(img)  #sets the image
-inky_display.show()  #calls the function to refresh the Inky pHAT with our text
+    font = ImageFont.truetype(FredokaOne, font_size)
+
+    center_x = inky_display.WIDTH / 2
+    center_y = inky_display.HEIGHT / 2
+
+    draw.text(
+        (center_x, center_y), 
+        message, 
+        fill=inky_display.RED, 
+        font=font, 
+        anchor="mm"
+    )
+
+    inky_display.set_image(img)
+    inky_display.show()
+
+if __name__ == "__main__":
+    update_display()
