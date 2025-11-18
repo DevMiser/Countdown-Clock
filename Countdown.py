@@ -1,3 +1,8 @@
+# To make this run at 12:01am everyday to refresh the countdown,
+# open a terminal and enter the command: crontab -e
+# Scroll to the bottom of the file and add the line:
+# 01 00 * * * /usr/bin/python3 /home/pi/Countdown_v2.py
+
 import sys
 from datetime import date
 from inky.auto import auto
